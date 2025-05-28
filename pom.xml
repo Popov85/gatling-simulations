@@ -43,7 +43,7 @@
         <artifactId>gatling-maven-plugin</artifactId>
         <version>${gatling.plugin.version}</version>
         <configuration>
-          <simulationClass>com.simulations.CoreSimulation</simulationClass>
+          <simulationClass>com.simulations.ShortenerSimulation</simulationClass>
         </configuration>
       </plugin>
     </plugins>

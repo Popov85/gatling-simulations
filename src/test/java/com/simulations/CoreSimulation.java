@@ -10,6 +10,7 @@ import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
 
 public class CoreSimulation extends Simulation {
+
     HttpProtocolBuilder httpProtocol = http
             .baseUrl("http://localhost:8080");
 
@@ -21,9 +22,8 @@ public class CoreSimulation extends Simulation {
             );
 
     {
-        setUp(
-                scn.injectOpen(atOnceUsers(1))
-        ).protocols(httpProtocol);
+        setUp(scn.injectOpen(atOnceUsers(1)))
+                .protocols(httpProtocol);
     }
 
 }

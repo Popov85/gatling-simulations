@@ -43,7 +43,11 @@
         <artifactId>gatling-maven-plugin</artifactId>
         <version>${gatling.plugin.version}</version>
         <configuration>
-          <simulationClass>com.simulations.ShortenerSimulation</simulationClass>
+          <jvmArgs>
+            <jvmArg>-Xms128m</jvmArg>
+            <jvmArg>-Xmx2g</jvmArg>
+          </jvmArgs>
+          <simulationClass>com.simulations.WriteRandomBodySimulation</simulationClass>
         </configuration>
       </plugin>
     </plugins>

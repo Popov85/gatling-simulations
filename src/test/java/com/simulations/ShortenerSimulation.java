@@ -16,17 +16,19 @@ import static io.gatling.javaapi.http.HttpDsl.status;
 
 public class ShortenerSimulation extends Simulation {
 
-    HttpProtocolBuilder httpProtocol = http.baseUrl("http://localhost:8080");
+    String baseUrl = "http://localhost:8080";
+
+    HttpProtocolBuilder httpProtocol = http.baseUrl(baseUrl);
 
     // Step 1: Generate 1000 short codes per virtual user
     ChainBuilder createUrls = exec(session -> session.set("shortURLs", new ArrayList<String>()))
-            .repeat(10, "i").on(
+            .repeat(100, "i").on(
                     exec(session -> {
                         String longUrl = "https://example.com/" + UUID.randomUUID();
                         return session.set("longURL", longUrl);
                     })
                             .exec(http("Create Short URL")
-                                    .post("/url")
+                                    .post("/url/body")
                                     .basicAuth("user", "user")
                                     .header("Content-Type", "text/plain")
                                     .body(StringBody("#{longURL}"))
@@ -37,6 +39,7 @@ public class ShortenerSimulation extends Simulation {
                                 list.add(session.getString("shortURL"));
                                 return session.set("shortURL", list);
                             })
+                            .pause(Duration.ofMillis(100))
             );
 
     // Step 2: Pick random short code from session and GET /r/{short_code}
@@ -51,7 +54,7 @@ public class ShortenerSimulation extends Simulation {
                             .disableFollowRedirect() // <-- prevents Gatling from following Location
                             .check(status().is(302))
                     )
-                    .pause(Duration.ofMillis(1000)) // ~1 RPS per user
+                    .pause(Duration.ofMillis(100)) // ~10 RPS per user
     );
 
     ScenarioBuilder scenario = scenario("Write then Read Test")
@@ -60,8 +63,8 @@ public class ShortenerSimulation extends Simulation {
             .exec(resolveUrls);
 
     {
-        setUp(scenario.injectOpen(atOnceUsers(1)) // one user generates 1000 and reads them
-        // scenario.injectOpen(atOnceUsers(10)) // Each of 10 users does 1000 POST + 10-min read
+        setUp(scenario.injectOpen(atOnceUsers(30)) // Each of X users does N POST + M-min read
+                //setUp(scenario.injectOpen(rampUsers(10).during(Duration.ofSeconds(60))) // smooth load, over 30 sec
         ).protocols(httpProtocol);
     }
 }
